@@ -8,6 +8,7 @@ using UK.CO.Senab.Photoview;
 using System.Linq;
 using Android.Runtime;
 using Images.Model;
+using Android.Graphics.Drawables;
 
 namespace Images.Activitïes
 {
@@ -19,7 +20,7 @@ namespace Images.Activitïes
 
         // Colors for image-Buttons
         Color defaultBtnColor = Color.White;
-        Color colorBtnClick = Color.Green;
+        Color colorBtnClick = Color.LightGreen;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -50,10 +51,6 @@ namespace Images.Activitïes
         protected override void imageButton_Click(object sender, EventArgs args)
         {
             var id = getIdFromImageButton(sender);
-
-            // Change background of all images back to default color
-            foreach (var img in images)
-                img.ImageButton.SetBackgroundColor(defaultBtnColor);
             
             if (id > loadedImagesCount)
             {
@@ -90,8 +87,7 @@ namespace Images.Activitïes
             {
                 // Get image
                 currentImage = images.Where(img => img.ID == id).FirstOrDefault();
-                // Set background color 
-                currentImage.ImageButton.SetBackgroundColor(colorBtnClick);
+                drawImageButtonColors();
 
                 // Show current img that was clicked
                 using (var bitmap = BitmapFactory.DecodeStream(ContentResolver.OpenInputStream(currentImage.URI)))
@@ -113,6 +109,22 @@ namespace Images.Activitïes
 
             if (currentImage.ID >= id)
                 showImage(currentImage.ID - 1);
+
+            drawImageButtonColors();
+        }
+
+        private void drawImageButtonColors()
+        {
+            // Change background of all images back to default color
+            foreach (var img in images)
+            {
+                if(((ColorDrawable)img.ImageButton.Background).Color != defaultBtnColor)
+                    img.ImageButton.SetBackgroundColor(defaultBtnColor);
+            } 
+                
+            // Set background color on current image-Button
+            if(currentImage.URI != null)
+                currentImage.ImageButton.SetBackgroundColor(colorBtnClick);
         }
 
         public override void OnBackPressed()
